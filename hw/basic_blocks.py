@@ -1,5 +1,4 @@
-#! /usr/bin/python3
-# basic blocks
+#!/usr/bin/python3
 import briltxt
 import json
 import sys
@@ -18,10 +17,14 @@ def print_blocks(blocks):
             if 'label' in instr: print(instr['label'] + ': ')
             else: print(briltxt.instr_to_string(instr))
 
-def basic_blocks(main):
-    def _tail(l):
-        if len(l) is 0: return []
-        else: return l[len(l)-1]
+
+def _tail(l):
+    if len(l) is 0: return []
+    else: return l[len(l)-1]
+
+
+def basic_blocks(blocks):
+    main = blocks['functions'][0]
 
     blocks, block = [], []
     terminators = ['ret', 'jmp', 'br']
@@ -65,7 +68,7 @@ if __name__ == '__main__':
     try:
         with open(sys.argv[1], 'r') as input_file:
             source = json.loads(input_file.read())
-            print_blocks(basic_blocks(source['functions'][0]))
+            print_blocks(basic_blocks(source))
     except Exception as e:
         traceback.print_exc()
         sys.exit(-1)
