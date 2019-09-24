@@ -31,7 +31,7 @@ table *table_init() {
   return t;
 }
 
-int64_t table_get(table* t, char *key, bool *not_found) {
+int64_t table_get(table* t, char const *const key, bool *not_found) {
   assert(t && t->storage);
   *not_found = false;
   size_t i = _hash(key) % t->size;
@@ -50,7 +50,7 @@ int64_t table_get(table* t, char *key, bool *not_found) {
   }
 }
 
-void table_add(table* t, char *key, int64_t value) {
+void table_add(table* t, char const *const key, int64_t value) {
   assert(t); 
   if (t->num_elems == t->size) {
     table_elem *new_storage = calloc((2*t->size), sizeof(table_elem));
