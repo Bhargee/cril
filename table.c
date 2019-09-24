@@ -31,12 +31,14 @@ table *table_init() {
   return t;
 }
 
+
 int64_t table_get(table* t, char const *const key, bool *not_found) {
   assert(t && t->storage);
   *not_found = false;
   size_t i = _hash(key) % t->size;
   for (; i < t->size; ++i) {
     if (!t->storage[i].key) {
+      puts("error 1");
       *not_found = true;
       return 0;
     }
@@ -50,7 +52,7 @@ int64_t table_get(table* t, char const *const key, bool *not_found) {
   }
 }
 
-void table_add(table* t, char const *const key, int64_t value) {
+void table_put(table* t, char const *const key, int64_t value) {
   assert(t); 
   if (t->num_elems == t->size) {
     table_elem *new_storage = calloc((2*t->size), sizeof(table_elem));
@@ -78,6 +80,24 @@ void table_add(table* t, char const *const key, int64_t value) {
   }
 }
 
+table* table_make(size_t arr_len, char **strs) {
+  table *t = (table *) malloc(sizeof (table));
+  size_t init_size = TABLE_INIT_SIZE;
+  while (init_size < arr_len) {
+    init_size += TABLE_INIT_SIZE;
+  }
+  t->size = init_size;
+  t->num_elems = arr_len;
+  t->storage = (table_elem*) calloc(TABLE_INIT_SIZE,  sizeof(table_elem));
+  for (size_t i = 0; i < arr_len; ++i) {
+    table_put(t, strs[i], i);
+  }
+
+  return t;
+}
+
+
+
 void table_free(table *t) {
   for (size_t i = 0; i < t->size; ++i) {
     if (t->storage[i].key) {
@@ -91,7 +111,7 @@ void table_free(table *t) {
 void table_print(table *t) {
   for (size_t i = 0; i < t->size; ++i) {
     if (t->storage[i].key) {
-      printf("%s - %d\n", t->storage[i].key, (int) t->storage[i].value);
+      printf("index: %zu, key: %s, value: %d\n", i, t->storage[i].key, (int) t->storage[i].value);
     }
   }
 }

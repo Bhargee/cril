@@ -14,7 +14,8 @@ typedef struct table {
 } table;
 
 table *table_init();
+table* table_make(size_t, char**);
 int64_t table_get(table*, char const *const, bool*);
-void table_add(table*, char const *const, int64_t);
+void table_put(table*, char const *const, int64_t);
 void table_free(table*);
 void table_print(table*);
