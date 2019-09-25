@@ -1,7 +1,9 @@
+#include <inttypes.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 
-extern double interp(char const *const);
+extern uint64_t interp(char const *const);
 
 int main(int argc, char **argv) {
   if (argc < 2) {
@@ -15,7 +17,7 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
   fclose(f);
-  double time_spent = interp(fn);
-  printf("%f secs\n", time_spent);
+  uint64_t time_spent = interp(fn);
+  printf("%" PRIu64 " nsecs\n", time_spent);
   return 0;
 }

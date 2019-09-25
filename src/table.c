@@ -36,11 +36,10 @@ int64_t table_get(table* t, char const *const key, bool *not_found) {
   assert(t && t->storage);
   *not_found = false;
   size_t i = _hash(key) % t->size;
-  for (; i < t->size; ++i) {
+  for (; i < t->size; i++) {
     if (!t->storage[i].key) {
-      puts("error 1");
       *not_found = true;
-      return 0;
+       return 0;
     }
     else if(!strcmp(t->storage[i].key, key)) {
       return t->storage[i].value;
@@ -66,13 +65,13 @@ void table_put(table* t, char const *const key, int64_t value) {
     bool empty_key = !t->storage[i].key;
     bool same_key = !empty_key && !strcmp(t->storage[i].key, key);
     if (empty_key || same_key) {
-      if (empty_key) {
+      if (same_key) {
         free(t->storage[i].key);
       }
       t->storage[i].value = value;
       t->storage[i].key = (char*) malloc(strlen(key)+1);
       strcpy(t->storage[i].key, key);
-      if (same_key) {
+      if (empty_key) {
         t->num_elems++;
       }
       return;
@@ -109,7 +108,7 @@ void table_free(table *t) {
 void table_print(table *t) {
   for (size_t i = 0; i < t->size; ++i) {
     if (t->storage[i].key) {
-      printf("index: %zu, key: %s, value: %d\n", i, t->storage[i].key, (int) t->storage[i].value);
+      printf("key: %s, value: %d, index: %zu\n", t->storage[i].key, (int) t->storage[i].value, i);
     }
   }
 }

@@ -1,12 +1,8 @@
-/*
- * TODO
- * vararg the JSON_* deletions
- * add general program error handling?
- */
 #include <inttypes.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -44,7 +40,7 @@ static void cleanup() {
 static void quit(char const *const err, char const *const extra) {
   puts(err);
   puts(extra);
-  printf("On line: %zu\n", ip+1);
+  printf("instruction index: %zu\n", ip);
   cleanup();
   exit(EXIT_FAILURE);
 }
@@ -258,9 +254,10 @@ static JSON_Array *get_main_func_instrs(char const *const fn) {
  * calling function checks f is valid file
  */
 
-double interp(char const *const fn) {
+uint64_t interp(char const *const fn) {
   JSON_Array *instrs = get_main_func_instrs(fn);
-  clock_t start = clock();
+  struct timespec tick, tock;
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tick);
   mem = table_init();
   labels = table_init();
   make_dispatch();
@@ -284,7 +281,6 @@ double interp(char const *const fn) {
     if (!op) continue; // label
     op_ind = (size_t) table_get(disp, op, &not_found);
     if (not_found) {
-      printf("%zu\n", op_ind);
       quit("Operation not defined", op);
     } else {
       (op_funcs[op_ind]());
@@ -292,6 +288,6 @@ double interp(char const *const fn) {
   }
 
   cleanup();
-  clock_t end = clock();
-  return (double) ((end - start)/CLOCKS_PER_SEC);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tock);
+  return (1000000000 * (tock.tv_sec - tick.tv_sec) + tock.tv_nsec - tick.tv_nsec);
 }
