@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-extern void interp(char const *const);
+extern double interp(char const *const);
 
 int main(int argc, char **argv) {
   if (argc < 2) {
@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
   fclose(f);
-  interp(fn);
+  double time_spent = interp(fn);
+  printf("%f secs\n", time_spent);
   return 0;
 }

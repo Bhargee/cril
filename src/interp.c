@@ -9,11 +9,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "parson.h"
+#include <time.h>
+
+#include "../deps/parson.h"
 #include "table.h"
 
 #define jogs json_object_get_string
 #define jogn json_object_get_number
+#define jogb json_object_get_boolean
 #define joga json_object_get_array
 #define jags json_array_get_string
 #define ARGS "args"
@@ -64,7 +67,13 @@ static void put(int64_t val) {
 
 
 static void op_const() {
- table_put(mem, jogs(curr_instr, DEST), jogn(curr_instr, VALUE));
+  const char *type = jogs(curr_instr, "type");
+  if (!strcmp(type, "int"))
+    table_put(mem, jogs(curr_instr, DEST), jogn(curr_instr, VALUE));
+  else if (!strcmp(type, "bool")) 
+    table_put(mem, jogs(curr_instr, DEST), (int64_t) jogb(curr_instr, VALUE));
+  else
+    quit("Unrecognized type", type);
 }
 
 static void op_add() {
@@ -249,12 +258,13 @@ static JSON_Array *get_main_func_instrs(char const *const fn) {
  * calling function checks f is valid file
  */
 
-void interp(char const *const fn) {
+double interp(char const *const fn) {
+  JSON_Array *instrs = get_main_func_instrs(fn);
+  clock_t start = clock();
   mem = table_init();
   labels = table_init();
   make_dispatch();
 
-  JSON_Array *instrs = get_main_func_instrs(fn);
   num_instrs = json_array_get_count(instrs);
   
   for (size_t i = 0; i < num_instrs; ++i) {
@@ -271,6 +281,7 @@ void interp(char const *const fn) {
   for (ip = 0; ip < num_instrs; ++ip) {
     curr_instr = json_array_get_object(instrs, ip);
     op = jogs(curr_instr, "op");
+    if (!op) continue; // label
     op_ind = (size_t) table_get(disp, op, &not_found);
     if (not_found) {
       printf("%zu\n", op_ind);
@@ -281,4 +292,6 @@ void interp(char const *const fn) {
   }
 
   cleanup();
+  clock_t end = clock();
+  return (double) ((end - start)/CLOCKS_PER_SEC);
 }

@@ -100,9 +100,7 @@ table* table_make(size_t arr_len, char **strs) {
 
 void table_free(table *t) {
   for (size_t i = 0; i < t->size; ++i) {
-    if (t->storage[i].key) {
-      free(t->storage[i].key);
-    }
+    free(t->storage[i].key);
   }
   free(t->storage);
   free(t);
