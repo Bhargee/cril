@@ -1,30 +1,27 @@
 CC=clang
-CFLAGS= -Wall -Wextra -pedantic -g
+CFLAGS= -Wall -Wextra -pedantic
 RELEASE= -Ofast
 DEBUG= -O1 -g -fsanitize=address -fno-omit-frame-pointer
 OBJECTS=parson.o table.o interp.o main.o
-TARGET=interp
+TARGET=cril
 
 all: $(TARGET)
 
-debug: $(OBJECTS)
-	$(CC) $(CFLAGS) $(DEBUG) -o interp $(OBJECTS)
-
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(RELEASE) -o interp $(OBJECTS)
+	$(CC) $(CFLAGS) $(RELEASE) -o $(TARGET) $(OBJECTS)
 	rm $(OBJECTS)
 
 parson.o: deps/parson.c deps/parson.h
-	$(CC) $(CFLAGS) -c deps/parson.c
+	$(CC) $(CFLAGS) $(RELEASE) -c deps/parson.c
 
 table.o: src/table.h src/table.c
-	$(CC) $(CFLAGS) -c src/table.c
+	$(CC) $(CFLAGS) $(RELEASE) -c src/table.c
 
 interp.o: src/interp.c
-	$(CC) $(CFLAGS) -c src/interp.c
+	$(CC) $(CFLAGS) $(RELEASE) -c src/interp.c
 
 main.o: src/main.c
-	$(CC) $(CFLAGS) -c src/main.c
+	$(CC) $(CFLAGS) $(RELEASE) -c src/main.c -lm
 
 
 .PHONY: clean
