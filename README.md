@@ -15,3 +15,5 @@ There are two modes.
 2. `./cril --benchmark` will run the programs under the `test` directory and
     collect stats on average times (with standard deviations). The number of
     runs is controlled by the `NUM_RUNS` definition in `src/main.c`
+
+If you want the benchmark table, do `./cril --benchmark | grep -v "^[0-9]"`
