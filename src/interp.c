@@ -15,6 +15,7 @@
 #define jogb json_object_get_boolean
 #define joga json_object_get_array
 #define jags json_array_get_string
+#define jogwv json_object_get_wrapping_value
 #define ARGS "args"
 #define DEST "dest"
 #define VALUE "value"
@@ -40,7 +41,12 @@ static void cleanup() {
 static void quit(char const *const err, char const *const extra) {
   puts(err);
   puts(extra);
-  printf("instruction index: %zu\n", ip);
+  size_t buflen = json_serialization_size_pretty(jogwv(curr_instr));
+  char buf[buflen+1];
+  JSON_Status res = json_serialize_to_buffer_pretty(jogwv(curr_instr), buf, buflen+1);
+  if (res == JSONSuccess) {
+    printf("instruction:\n%s\n", buf);
+  }
   cleanup();
   exit(EXIT_FAILURE);
 }

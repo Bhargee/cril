@@ -7,6 +7,9 @@ TARGET=cril
 
 all: $(TARGET)
 
+debug: $(OBJECTS)
+	$(CC) $(CFLAGS) $(DEBUG) -o $(TARGET) $(OBJECTS)
+
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(RELEASE) -o $(TARGET) $(OBJECTS)
 	rm $(OBJECTS)
@@ -26,5 +29,5 @@ main.o: src/main.c
 
 .PHONY: clean
 clean:
-	-@rm interp 2>/dev/null || true
+	-@rm cril 2>/dev/null || true
 	-@rm $(OBJECTS) 2>/dev/null || true

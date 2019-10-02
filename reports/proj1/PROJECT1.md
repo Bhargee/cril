@@ -3,20 +3,20 @@ title = "C Implementation of Bril"
 extra.author = "Bhargava S. Manja"
 extra.bio = """
   [Bhargava S. Manja](https://github.com/bhargee) is a first year PhD student
-interested in computer vision, fast computing, and domain specific languages
+interested in computer vision, fast computing, and domain specific languages.
 """
 +++
 
-## Project Report 1: C Implementation of Bril
+## Introduction
 
-While bril is a very useful testbed for exploring existing language
+While Bril is a very useful testbed for exploring existing language
 technologies and experimenting with new ideas, I was frustrated with the
 tooling around the language. It took me three or four hours of fiddling around
-with nodejs, npm, and python to get `brili` working, and I did not get either
+with Node, NPM, and Python to get `brili` working, and I did not get either
 `bril2json` or `bril2txt` to work on my machine (I reimplemented them myself in
 python). I've rarely had such issues with my trusted systems programming
 language, C. I decided to implement a simple, fast, and correct interpreter for
-bril. I call it `cril`.
+Bril. I call it `cril`.
 
 All code can be found in the [project
 repository](https://github.com/Bhargee/cril)
@@ -26,14 +26,14 @@ repository](https://github.com/Bhargee/cril)
 The goal here is simplicity and speed (in comparison to other student
 interpreters). The only external library used was for [parsing
 JSON](https://github.com/kgabis/parson). The interpreter's evaluation loop, in
-`src/interp.c`, first loops through the parsed bril program and notes the
+`src/interp.c`, first loops through the parsed Bril program and notes the
 indices of labels. This was the simplest way to implement jumps and branches,
 which become a simple setting of the instruction pointer to the label's index
 (or an error if the label is not found in the label->index map). Actual
 instructions are implemented with a set of functions, one for each op code.
-Once the `op` is known, teh interpreter calls one of these functions., which
+Once the `op` is known, the interpreter calls one of these functions, which
 fetches arguments, does the required manipulation, and stores its result in the
-right place (or in the case of effect operations, has teh correct effect). 
+right place (or in the case of effect operations, has the correct effect). 
 
 ## Op Code Implementation
 All instructions but `jmp`, `br`, `print`, and `const` have a trivial

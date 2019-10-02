@@ -2,7 +2,7 @@
  * use `realloc` instead of malloc + free combos
  * minimize use of mallocs? Or use c89 standard
  */
-#include <assert.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -12,6 +12,7 @@
 #include "table.h"
 
 #define TABLE_INIT_SIZE 50
+#define LOAD_FACTOR .48
 
 int64_t _hash(char const *const key) {
   int n = strlen(key);
@@ -33,7 +34,6 @@ table *table_init() {
 
 
 int64_t table_get(table* t, char const *const key, bool *not_found) {
-  assert(t && t->storage);
   *not_found = false;
   size_t i = _hash(key) % t->size;
   for (; i < t->size; i++) {
@@ -52,28 +52,37 @@ int64_t table_get(table* t, char const *const key, bool *not_found) {
 }
 
 void table_put(table* t, char const *const key, int64_t value) {
-  assert(t); 
-  if (t->num_elems == t->size) {
-    table_elem *new_storage = calloc((2*t->size), sizeof(table_elem));
-    memcpy(new_storage, t->storage, t->size * sizeof(table_elem));
+  if ((((float) t->num_elems)/t->size)+.01 >= LOAD_FACTOR) {
+    size_t new_size = 2*t->size;
+    table_elem *new_storage = calloc(new_size, sizeof(table_elem));
+    for (size_t i = 0; i < t->size; i++) { 
+      if (t->storage[i].key) {
+        size_t new_index = _hash(t->storage[i].key) % new_size;
+        for (; new_index < new_size; ++new_index) {
+          if (!new_storage[new_index].key) {
+            new_storage[new_index] = t->storage[i];
+            break;
+          }
+        }
+      }
+    }
     free(t->storage);
     t->storage = new_storage;
-    t->size *= 2;
+    t->size = new_size;
   }
 
   for(size_t i = _hash(key) % t->size; i < t->size; ++i) {
     bool empty_key = !t->storage[i].key;
     bool same_key = !empty_key && !strcmp(t->storage[i].key, key);
-    if (empty_key || same_key) {
-      if (same_key) {
-        free(t->storage[i].key);
-      }
+    if (same_key) {
+      t->storage[i].value = value;
+      return;
+    }
+    else if (empty_key) {
       t->storage[i].value = value;
       t->storage[i].key = (char*) malloc(strlen(key)+1);
       strcpy(t->storage[i].key, key);
-      if (empty_key) {
-        t->num_elems++;
-      }
+      t->num_elems++;
       return;
     }
   }
